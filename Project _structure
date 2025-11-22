@@ -1,0 +1,78 @@
+drive-ai-agent/
+│
+├── backend/                         # Your AI brain (FastAPI + RAG)
+│   ├── app/
+│   │   ├── main.py                  # FastAPI entry point
+│   │   ├── config.py                # App settings, model names, paths
+│   │   │
+│   │   ├── drive/                   # Google Drive sync + file handling
+│   │   │   ├── drive_client.py      # OAuth + Drive service
+│   │   │   ├── sync_service.py      # Pull files, detect updates
+│   │   │   └── drive_utils.py       # Utility functions
+│   │   │
+│   │   ├── extractors/              # File→text extractors
+│   │   │   ├── pdf_extractor.py
+│   │   │   ├── docx_extractor.py
+│   │   │   ├── ocr_extractor.py
+│   │   │   ├── video_transcriber.py
+│   │   │   └── extractor_router.py  # Chooses correct extractor
+│   │   │
+│   │   ├── processing/
+│   │   │   ├── cleaner.py           # Text cleaning
+│   │   │   ├── chunker.py           # Chunk splitting
+│   │   │   └── metadata_builder.py  # Build chunk metadata
+│   │   │
+│   │   ├── embeddings/
+│   │   │   ├── embedder.py          # Embedding model
+│   │   │   └── embed_utils.py
+│   │   │
+│   │   ├── vectorstore/
+│   │   │   ├── faiss_index.py       # FAISS operations
+│   │   │   └── index_mapper.py      # FAISS ID ↔ chunk ID
+│   │   │
+│   │   ├── retrieval/
+│   │   │   ├── retriever.py         # Fetch top-k chunks + metadata
+│   │   │   └── ranker.py
+│   │   │
+│   │   ├── rag/
+│   │   │   ├── prompt_builder.py    # Build RAG prompt
+│   │   │   └── llm_engine.py        # Call GPT/Llama
+│   │   │
+│   │   ├── models/
+│   │   │   ├── schemas.py           # Request/response objects
+│   │   │   └── data_models.py
+│   │   │
+│   │   ├── storage/
+│   │   │   ├── metadata_store.json  # Stored chunk metadata
+│   │   │   ├── file_index.json
+│   │   │   └── faiss.index          # Vector index file
+│   │   │
+│   │   ├── utils/
+│   │   │   ├── logger.py
+│   │   │   └── timers.py
+│   │   │
+│   │   └── routes/
+│   │       ├── query_route.py       # /query endpoint for add-on
+│   │       └── sync_route.py        # /sync endpoint
+│   │
+│   ├── requirements.txt
+│   └── start.sh
+│
+├── addons/                           # Google Drive Add-on (UI inside Drive)
+│   ├── drive_addon/
+│   │   ├── Code.gs                  # Google Apps Script logic
+│   │   ├── manifest.json            # Add-on manifest
+│   │   ├── ui.html                  # Optional HTML for richer sidebar
+│   │   └── card_layout.gs           # UI built with CardService
+│   │
+│   └── README.md                    # Instructions for deployment
+│
+├── data/
+│   ├── raw_files/                   # Synced files from Drive
+│   ├── extracted_texts/             # Text from PDFs/images/docs
+│   └── transcripts/                 # Video/audio transcripts
+│
+└── docs/
+    ├── architecture_diagram.png
+    ├── workflow_explanation.md
+    └── definitions_glossary.md

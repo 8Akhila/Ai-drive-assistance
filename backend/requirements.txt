@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+pymupdf
+python-docx
+pytesseract
+Pillow
+whisper
+sentence-transformers
+faiss-cpu
+google-api-python-client
+google-auth
+google-auth-oauthlib
+transformers
+torch
