@@ -1,7 +1,21 @@
-venv/
+# Python
 __pycache__/
+*.pyc
+
+# Virtual Environment
+venv/
+
+# Drive Sync Data
+backend/app/data/*
+!backend/app/data/.gitkeep
+
+# Local Model Folder
 local_model/
-backend/app/data/raw/
-*.token
-token.json
-credentials.json
+
+# FAISS Index
+*.bin
+*.json
+
+# System Files
+.DS_Store
+Thumbs.db
