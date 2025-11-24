@@ -1,25 +1,10 @@
-# Ignore Python virtual environments
 venv/
-.env
-
-# Ignore raw Drive files & generated data
-backend/app/data/
-backend/app/data/*
-*.json
-
-# Ignore Machine Learning model files
-local_model/
-*.safetensors
-
-# Ignore compiled binaries
-*.dll
-*.bin
-
-# Ignore cache + py build
 __pycache__/
-*.pyc
-
-# Ignore large media/images/training data
-*.png
+backend/app/data/
+local_model/
+*.dll
+*.safetensors
+*.pdf
+*.mp4
 *.jpg
-*.jpeg
+*.png
