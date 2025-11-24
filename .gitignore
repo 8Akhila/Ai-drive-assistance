@@ -1,0 +1,25 @@
+# Ignore Python virtual environments
+venv/
+.env
+
+# Ignore raw Drive files & generated data
+backend/app/data/
+backend/app/data/*
+*.json
+
+# Ignore Machine Learning model files
+local_model/
+*.safetensors
+
+# Ignore compiled binaries
+*.dll
+*.bin
+
+# Ignore cache + py build
+__pycache__/
+*.pyc
+
+# Ignore large media/images/training data
+*.png
+*.jpg
+*.jpeg
