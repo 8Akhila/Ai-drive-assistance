@@ -33,7 +33,7 @@ def build_prompt(chunks: List[Dict], question: str, mode: str = "default", max_c
         file_name = chunk.get("file_name", "unknown_file")
         snippet = chunk.get("snippet", "")
 
-        safe = snippet if len(snippet) <= 1000 else snippet[:1000] + " ... (truncated)"
+        safe = snippet if len(snippet) <= 2000 else snippet[:2000] + " ... (truncated)"
         block = f"[{i}] {file_name}\n{safe}\n"
 
         if used_chars + len(block) > max_chars:

@@ -1,13 +1,5 @@
 """
-Google Drive → OCR → Text → Embedding → FAISS
-
-This file handles:
-✔ Downloading files
-✔ Extracting text (OCR or parsing)
-✔ Chunking text
-✔ Embedding chunks
-✔ Saving them to FAISS
-✔ Remembering which files are already processed
+Sync Service: Extract → Detect IDs → Chunk → Embed → FAISS Store
 """
 
 import os
@@ -17,6 +9,7 @@ from googleapiclient.http import MediaIoBaseDownload
 
 from backend.app.drive.drive_client import get_drive_service
 from backend.app.extractors.extractor import Extractor
+from backend.app.extractors.id_extractor import extract_ids
 from backend.app.embeddings.embedder import EmbeddingModel
 from backend.app.processing.chunker import chunk_text
 from backend.app.vectorstore.faiss_store import FaissStore
@@ -33,27 +26,24 @@ os.makedirs(RAW_DIR, exist_ok=True)
 
 
 def load_processed():
-    """Returns dictionary of previously synced files."""
     if not os.path.exists(PROCESSED_FILE):
         return {}
     try:
-        with open(PROCESSED_FILE, "r") as f:
-            return json.load(f)
+        return json.load(open(PROCESSED_FILE, "r"))
     except:
         return {}
 
 
 def save_processed(data):
-    """Writes processed file list."""
-    with open(PROCESSED_FILE, "w") as f:
-        json.dump(data, f, indent=4)
+    json.dump(data, open(PROCESSED_FILE, "w"), indent=4)
 
 
 def sync_drive_files():
-    """Main synchronization pipeline."""
 
     print("\n⚡ SYNC STARTED...\n")
+
     processed = load_processed()
+    drive_service = get_drive_service()
 
     mime_types = [
         "application/pdf",
@@ -66,55 +56,61 @@ def sync_drive_files():
     ]
 
     query = " or ".join([f"mimeType='{m}'" for m in mime_types])
-    service = get_drive_service()
 
-    files = service.files().list(q=query).execute().get("files", [])
-    print(f"🔵 Total files detected: {len(files)}")
+    files = drive_service.files().list(q=query).execute().get("files", [])
+    print(f"🔍 {len(files)} files detected in Drive")
 
     new_indexed = 0
 
     for f in files:
+
         file_name = f["name"]
         file_id = f["id"]
         file_path = os.path.join(RAW_DIR, file_name)
 
         if file_name in processed:
-            print(f"⏭ Skipping (already indexed): {file_name}")
+            print(f"⏭ Already indexed → {file_name}")
             continue
 
-        print(f"\n📌 Processing: {file_name}")
+        print(f"\n📌 Processing → {file_name}")
 
-        # Download
-        req = service.files().get_media(fileId=file_id)
+        request = drive_service.files().get_media(fileId=file_id)
         with io.FileIO(file_path, "wb") as fh:
-            downloader = MediaIoBaseDownload(fh, req)
+            downloader = MediaIoBaseDownload(fh, request)
             done = False
             while not done:
                 _, done = downloader.next_chunk()
 
-        print("   ✔ Download complete")
+        print("   ✔ Downloaded")
 
-        # Extract text
-        text = extractor.extract(file_path)
+        # ----- Extract text -----
+        raw_text = extractor.extract(file_path)
+        if not raw_text.strip():
+            raw_text = "[NO OCR TEXT FOUND]"
 
-        if not text.strip():
-            text = f"[NO OCR TEXT] File: {file_name}"
+        # ----- Extract IDs (PAN, Aadhaar, Phone Numbers) -----
+        detected_ids = extract_ids(raw_text)
+        print(f"   🔍 IDs found: {detected_ids}")
 
-        chunks = chunk_text(text)
-        print(f"   📚 {len(chunks)} chunks created")
+        combined_text = raw_text + "\n\n[DETECTED IDs] " + json.dumps(detected_ids)
 
-        batch_vecs, batch_meta = [], []
+        # ----- Chunk for embedding -----
+        chunks = chunk_text(combined_text)
+        print(f"   📦 {len(chunks)} chunks created")
+
+        embeddings, metadata = [], []
 
         for chunk in chunks:
-            batch_vecs.append(embedder.embed(chunk))
-            batch_meta.append({
+            embeddings.append(embedder.embed(chunk))
+            metadata.append({
                 "file_name": file_name,
                 "file_id": file_id,
-                "snippet": chunk[:250],
+                "snippet": chunk[:2000],
+                "ids": detected_ids,
                 "drive_link": f"https://drive.google.com/file/d/{file_id}"
             })
 
-        faiss_store.add_batch(batch_vecs, batch_meta)
+        faiss_store.add_batch(embeddings, metadata)
 
         processed[file_name] = True
         save_processed(processed)
@@ -124,6 +120,6 @@ def sync_drive_files():
 
     return {
         "message": "Sync Finished",
-        "new_files_indexed": new_indexed,
-        "total_indexed": len(processed)
+        "files_added_this_run": new_indexed,
+        "total_files_indexed": len(processed)
     }
