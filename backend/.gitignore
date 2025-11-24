@@ -1,7 +1,9 @@
 venv/
-__pycache__/
+backend/app/data/
 local_model/
-backend/app/data/raw/
-*.token
-token.json
-credentials.json
+*.safetensors
+*.dll
+*.bin
+*.json
+__pycache__/
+.env
