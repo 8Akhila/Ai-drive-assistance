@@ -1,10 +1,6 @@
 services:
   - type: web
-    name: drive-ai-backend
-    rootDirectory: drive-ai-agent
+    name: ai-drive-assistant
     env: python
-    buildCommand: pip install -r backend/requirements.txt
-    startCommand: ./start.sh
-    envVars:
-      - key: PYTHONPATH
-        value: /opt/render/project/src/drive-ai-agent
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT"

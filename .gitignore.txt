@@ -29,3 +29,11 @@ Thumbs.db
 *.jpg
 *.jpeg
 *.png
+
+venv/
+__pycache__/
+local_model/
+backend/app/data/
+*.dll
+*.safetensors
+token.json
