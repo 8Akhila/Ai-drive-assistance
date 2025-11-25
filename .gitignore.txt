@@ -1,21 +1,31 @@
-# Python
+# Virtual environment
+venv/
+.env
+
+# Large model files
+local_model/
+*.safetensors
+*.bin
+*.pt
+
+# Google token/cache
+token.json
+credentials.json
+
+# FAISS database and extracted raw files
+backend/app/data/
+data/
+
+# Python cache
 __pycache__/
 *.pyc
 
-# Virtual Environment
-venv/
-
-# Drive Sync Data
-backend/app/data/*
-!backend/app/data/.gitkeep
-
-# Local Model Folder
-local_model/
-
-# FAISS Index
-*.bin
-*.json
-
-# System Files
+# OS files
 .DS_Store
 Thumbs.db
+
+# PDFs, extracted test images, etc.
+*.pdf
+*.jpg
+*.jpeg
+*.png

@@ -1,10 +1,31 @@
+# Virtual environment
 venv/
-__pycache__/
-backend/app/data/
+.env
+
+# Large model files
 local_model/
-*.dll
 *.safetensors
+*.bin
+*.pt
+
+# Google token/cache
+token.json
+credentials.json
+
+# FAISS database and extracted raw files
+backend/app/data/
+data/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# PDFs, extracted test images, etc.
 *.pdf
-*.mp4
 *.jpg
+*.jpeg
 *.png
